@@ -2,6 +2,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,8 @@ public class LookupTable<K extends Comparable<K>,V> implements Map<K,V>{
 
     @Override
     public boolean containsKey(Object key) {
-        int result = Collections.binarySearch(entries,key,null);
+        Entry<K,V> lookFor = new AbstractMap.SimpleEntry<>((K) key,null);
+        int result = Collections.binarySearch(entries,lookFor,Entry.comparingByKey());
         return result >= 0;
     }
 
@@ -43,18 +45,20 @@ public class LookupTable<K extends Comparable<K>,V> implements Map<K,V>{
 
     @Override
     public V get(Object key) {
-        int index = Collections.binarySearch(entries,key,null);
+        Entry<K,V> lookFor = new AbstractMap.SimpleEntry<>((K) key,null);
+        int index = Collections.binarySearch(entries,lookFor,Entry.comparingByKey());
         return containsKey(key) ? entries.get(index).getValue() : null;
     }
 
     @Override
     public V put(K key, V value){
         V previousValue = null;
-        int index = Collections.binarySearch(entries,key,null);
+        Entry<K,V> lookFor = new AbstractMap.SimpleEntry<>(key,null);
+        int index = Collections.binarySearch(entries,lookFor,Entry.comparingByKey());
         if(index >= 0){
             previousValue = entries.get(index).setValue(value);
         } else {
-            entries.add(-(index) - 1, new AbstractMap.SimpleEntry<>(key,value));
+            entries.add(-(index) - 1, new AbstractMap.SimpleEntry<>(key, value));
         }
 
         return previousValue;
@@ -63,7 +67,8 @@ public class LookupTable<K extends Comparable<K>,V> implements Map<K,V>{
     @Override
     public V remove(Object key) {
         V removed = null;
-        int index = Collections.binarySearch(entries,key,null);
+        Entry<K,V> lookFor = new AbstractMap.SimpleEntry<>((K) key,null);
+        int index = Collections.binarySearch(entries,lookFor,Entry.comparingByKey());
         if(index >=0){
             removed = entries.remove(index).getValue();
         }
